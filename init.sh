@@ -61,7 +61,6 @@ if [ ! -s /dashboard/damon.conf ]; then
   elif [ "$REVERSE_PROXY_MODE" = 'nginx' ]; then
     GRPC_PROXY_RUN='nginx -g "daemon off;"'
     cat > /etc/nginx/nginx.conf  << EOF
-user www-data;
 worker_processes auto;
 pid /run/nginx.pid;
 include /etc/nginx/modules-enabled/*.conf;
@@ -72,8 +71,9 @@ events {
 http {
 
 server {
-    listen 127.0.0.1:$GRPC_PROXY_PORT ssl http2;
-    listen [::1]:$GRPC_PROXY_PORT ssl http2;
+    listen 127.0.0.1:$GRPC_PROXY_PORT ssl;
+    listen [::1]:$GRPC_PROXY_PORT ssl;
+    http2  on;
     ssl_certificate          $WORK_DIR/nezha-dashboard.pem;
     ssl_certificate_key      $WORK_DIR/nezha-dashboard.key;
     server_name $DASHBOARD_DOMAIN;
@@ -95,8 +95,9 @@ server {
     keepalive 1024;
   }
   server {
-    listen 127.0.0.1:$GRPC_PROXY_PORT ssl http2;
-    listen [::1]:$GRPC_PROXY_PORT ssl http2;
+    listen 127.0.0.1:$GRPC_PROXY_PORT ssl;
+    listen [::1]:$GRPC_PROXY_PORT ssl;
+    http2  on;
     server_name $AG_DOMAIN;
     ssl_certificate          $WORK_DIR/nezha-ag.pem;
     ssl_certificate_key      $WORK_DIR/nezha-ag.key;
