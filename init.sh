@@ -1,7 +1,16 @@
 #!/usr/bin/env bash
+GRPC_PROXY_PORT=443
+GRPC_PORT=5555
+WEB_PORT=80
+CADDY_HTTP_PORT=2052
+WORK_DIR=/dashboard
 
-if [ ! -s /dashboard/nginx.conf ]; then
-    cat > /dashboard/nginx.conf  << EOF
+# 默认agent的证书和dashboard的一样
+NEZHA_AG_CERT_PEM=${NEZHA_AG_CERT_PEM:-$NEZHA_CERT_PEM}
+NEZHA_AG_KEY_PEM=${NEZHA_AG_KEY_PEM:-$NEZHA_KEY_PEM}
+  
+if [ ! -s $WORK_DIR/nginx.conf ]; then
+    cat > $WORK_DIR/nginx.conf  << EOF
 worker_processes auto;
 pid /run/nginx.pid;
 include /etc/nginx/modules-enabled/*.conf;
@@ -64,15 +73,6 @@ if [ ! -s /dashboard/damon.conf ]; then
 
   # 设置 Github CDN 及若干变量，如是 IPv6 only 或者大陆机器，需要 Github 加速网，可自行查找放在 GH_PROXY 处 ，如 https://mirror.ghproxy.com/ ，能不用就不用，减少因加速网导致的故障。
   #GH_PROXY='https://ghproxy.lvedong.eu.org/'
-  GRPC_PROXY_PORT=443
-  GRPC_PORT=5555
-  WEB_PORT=80
-  CADDY_HTTP_PORT=2052
-  WORK_DIR=/dashboard
-
-  # 默认agent的证书和dashboard的一样
-  NEZHA_AG_CERT_PEM=${NEZHA_AG_CERT_PEM:-$NEZHA_CERT_PEM}
-  NEZHA_AG_KEY_PEM=${NEZHA_AG_KEY_PEM:-$NEZHA_KEY_PEM}
 
   # 如不分离备份的 github 账户，默认与哪吒登陆的 github 账户一致
   GH_BACKUP_USER=${GH_BACKUP_USER:-$GH_USER}
@@ -118,8 +118,8 @@ if [ ! -s /dashboard/damon.conf ]; then
     chmod +x $WORK_DIR/grpcwebproxy
     GRPC_PROXY_RUN="$WORK_DIR/grpcwebproxy --server_tls_cert_file=$WORK_DIR/nezha.pem --server_tls_key_file=$WORK_DIR/nezha.key --server_http_tls_port=$GRPC_PROXY_PORT --backend_addr=localhost:$GRPC_PORT --backend_tls_noverify --server_http_max_read_timeout=300s --server_http_max_write_timeout=300s"
   elif [ "$REVERSE_PROXY_MODE" = 'nginx' ]; then
-    GRPC_PROXY_RUN='nginx -c /dashboard/nginx.conf  -g "daemon off;"'
-    cat > /dashboard/nginx.conf  << EOF
+    GRPC_PROXY_RUN="nginx -c $WORK_DIR/nginx.conf  -g \"daemon off;\""
+    cat > $WORK_DIR/nginx.conf  << EOF
 worker_processes auto;
 pid /run/nginx.pid;
 include /etc/nginx/modules-enabled/*.conf;
@@ -380,9 +380,9 @@ EOF
   chmod +x $WORK_DIR/{cloudflared,nezha-agent,*.sh}
 
 fi
-[ -z "$NO_AUTO_RENEW" ] && [ -s /dashboard/renew.sh ] && ! grep -q "/dashboard/renew.sh" /etc/crontab && echo "30 3 * * * bash /dashboard/renew.sh" >> /etc/crontabs/root
-[ -s /dashboard/backup.sh ] && ! grep -q "/dashboard/backup.sh" /etc/crontabs/root && echo "0 4 * * * bash /dashboard/backup.sh a" >> /etc/crontabs/root
-[ -s /dashboard/restore.sh ] && ! grep -q "/dashboard/restore.sh" /etc/crontabs/root && echo "* * * * * bash /dashboard/restore.sh a" >> /etc/crontabs/root
+[ -z "$NO_AUTO_RENEW" ] && [ -s $WORK_DIR/renew.sh ] && ! grep -q "$WORK_DIR/renew.sh" /etc/crontab && echo "30 3 * * * bash $WORK_DIR/renew.sh" >> /etc/crontabs/root
+[ -s $WORK_DIR/backup.sh ] && ! grep -q "$WORK_DIR/backup.sh" /etc/crontabs/root && echo "0 4 * * * bash $WORK_DIR/backup.sh a" >> /etc/crontabs/root
+[ -s $WORK_DIR/restore.sh ] && ! grep -q "$WORK_DIR/restore.sh" /etc/crontabs/root && echo "* * * * * bash $WORK_DIR/restore.sh a" >> /etc/crontabs/root
   service crond restart
 # 运行 supervisor 进程守护
-supervisord -c /dashboard/damon.conf
+supervisord -c $WORK_DIR/damon.conf
