@@ -174,20 +174,20 @@ EOF
   sqlite3 ${WORK_DIR}/data/sqlite.db "update servers set secret='${LOCAL_TOKEN}' where created_at='2023-04-23 13:02:00.770756566+08:00'"
 
   # SSH path 与 GH_CLIENTSECRET 一样
-  echo root:"$GH_CLIENTSECRET" | chpasswd root
-  sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin yes/g;s/^#\?PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config
-  service ssh restart
+  #echo root:"$GH_CLIENTSECRET" | chpasswd root
+  #sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin yes/g;s/^#\?PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+  #service ssh restart
 
   # 判断 ARGO_AUTH 为 json 还是 token
   # 如为 json 将生成 argo.json 和 argo.yml 文件
   if [[ "$ARGO_AUTH" =~ TunnelSecret ]]; then
-    ARGO_RUN="cloudflared tunnel --edge-ip-version auto --config $WORK_DIR/argo.yml run"
+    ARGO_RUN="cloudflared tunnel --edge-ip-version auto --config $WORK_DIR/tunnel.yml run"
 
-    echo "$ARGO_AUTH" > $WORK_DIR/argo.json
+    echo "$ARGO_AUTH" > $WORK_DIR/tunnel.json
 
-    cat > $WORK_DIR/argo.yml << EOF
+    cat > $WORK_DIR/tunnel.yml << EOF
 tunnel: $(cut -d '"' -f12 <<< "$ARGO_AUTH")
-credentials-file: $WORK_DIR/argo.json
+credentials-file: $WORK_DIR/tunnel.json
 protocol: http2
 
 ingress:
@@ -196,11 +196,7 @@ ingress:
     path: /proto.NezhaService/*
     originRequest:
       http2Origin: true
-      noTLSVerify: true
-  - hostname: $AG_DOMAIN
-    service: ssh://localhost:22
-    path: /$GH_CLIENTID/*
-  - hostname: $AG_DOMAIN
+  - hostname: $DASHBOARD_DOMAIN
     service: http://localhost:$WEB_PORT
   - service: http_status:404
 EOF
