@@ -342,6 +342,8 @@ EOF
 
   # 生成 supervisor 进程守护配置文件
   cat > /dashboard/damon.conf << EOF
+[unix_http_server]
+file=/run/supervisord.sock
 [supervisord]
 nodaemon=true
 logfile=/dev/null
