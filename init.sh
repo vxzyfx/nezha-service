@@ -380,5 +380,9 @@ EOF
   chmod +x $WORK_DIR/{cloudflared,nezha-agent,*.sh}
 
 fi
+[ -z "$NO_AUTO_RENEW" ] && [ -s /dashboard/renew.sh ] && ! grep -q "/dashboard/renew.sh" /etc/crontab && echo "30 3 * * * bash /dashboard/renew.sh" >> /etc/crontabs/root
+[ -s /dashboard/backup.sh ] && ! grep -q "/dashboard/backup.sh" /etc/crontabs/root && echo "0 4 * * * bash /dashboard/backup.sh a" >> /etc/crontabs/root
+[ -s /dashboard/restore.sh ] && ! grep -q "/dashboard/restore.sh" /etc/crontabs/root && echo "* * * * * bash /dashboard/restore.sh a" >> /etc/crontabs/root
+  service crond restart
 # 运行 supervisor 进程守护
 supervisord -c /dashboard/damon.conf
