@@ -179,7 +179,7 @@ fi
 
 if [ "$IS_DOCKER" = 1 ]; then
   supervisorctl start nezha >/dev/null 2>&1
-  [ $(supervisorctl status all | grep -c "RUNNING") = $(grep -c '\[program:.*\]' /etc/supervisor/conf.d/damon.conf) ] && info "\n All programs started! \n" || error "\n Failed to start program! \n"
+  [ $(supervisorctl status all | grep -c "RUNNING") = $(grep -c '\[program:.*\]' $WORK_DIR/damon.conf) ] && info "\n All programs started! \n" || error "\n Failed to start program! \n"
 else
   cmd_systemctl enable >/dev/null 2>&1
   [ "$(systemctl is-active nezha-dashboard)" = 'active' ] && info "\n Nezha dashboard started! \n" || error "\n Failed to start Nezha dashboard! \n"
