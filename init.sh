@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-if [ ! -s $WORK_DIR/nginx.conf ]; then
-    cat > $WORK_DIR/nginx.conf  << EOF
+if [ ! -s /dashboard/nginx.conf ]; then
+    cat > /dashboard/nginx.conf  << EOF
 worker_processes auto;
 pid /run/nginx.pid;
 include /etc/nginx/modules-enabled/*.conf;
@@ -118,8 +118,8 @@ if [ ! -s /dashboard/damon.conf ]; then
     chmod +x $WORK_DIR/grpcwebproxy
     GRPC_PROXY_RUN="$WORK_DIR/grpcwebproxy --server_tls_cert_file=$WORK_DIR/nezha.pem --server_tls_key_file=$WORK_DIR/nezha.key --server_http_tls_port=$GRPC_PROXY_PORT --backend_addr=localhost:$GRPC_PORT --backend_tls_noverify --server_http_max_read_timeout=300s --server_http_max_write_timeout=300s"
   elif [ "$REVERSE_PROXY_MODE" = 'nginx' ]; then
-    GRPC_PROXY_RUN="nginx -c $WORK_DIR/nginx.conf  -g \"daemon off;\""
-    cat > $WORK_DIR/nginx.conf  << EOF
+    GRPC_PROXY_RUN='nginx -c /dashboard/nginx.conf  -g "daemon off;"'
+    cat > /dashboard/nginx.conf  << EOF
 worker_processes auto;
 pid /run/nginx.pid;
 include /etc/nginx/modules-enabled/*.conf;
@@ -341,7 +341,7 @@ EOF
   service crond restart
 
   # 生成 supervisor 进程守护配置文件
-  cat > $WORK_DIR/damon.conf << EOF
+  cat > /dashboard/damon.conf << EOF
 [supervisord]
 nodaemon=true
 logfile=/dev/null
@@ -385,4 +385,4 @@ fi
 [ -s $WORK_DIR/restore.sh ] && ! grep -q "$WORK_DIR/restore.sh" /etc/crontabs/root && echo "* * * * * bash $WORK_DIR/restore.sh a" >> /etc/crontabs/root
   service crond restart
 # 运行 supervisor 进程守护
-supervisord -c $WORK_DIR/damon.conf
+supervisord -c /dashboard/damon.conf
