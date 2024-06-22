@@ -380,9 +380,5 @@ EOF
   chmod +x $WORK_DIR/{cloudflared,nezha-agent,*.sh}
 
 fi
-[ -z "$NO_AUTO_RENEW" ] && [ -s $WORK_DIR/renew.sh ] && ! grep -q "$WORK_DIR/renew.sh" /etc/crontab && echo "30 3 * * * bash $WORK_DIR/renew.sh" >> /etc/crontabs/root
-[ -s $WORK_DIR/backup.sh ] && ! grep -q "$WORK_DIR/backup.sh" /etc/crontabs/root && echo "0 4 * * * bash $WORK_DIR/backup.sh a" >> /etc/crontabs/root
-[ -s $WORK_DIR/restore.sh ] && ! grep -q "$WORK_DIR/restore.sh" /etc/crontabs/root && echo "* * * * * bash $WORK_DIR/restore.sh a" >> /etc/crontabs/root
-  service crond restart
 # 运行 supervisor 进程守护
 supervisord -c /dashboard/damon.conf
