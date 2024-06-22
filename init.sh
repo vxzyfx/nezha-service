@@ -195,9 +195,12 @@ ingress:
     service: https://localhost:$GRPC_PROXY_PORT
     path: /proto.NezhaService/*
     originRequest:
+      originServerName: $AG_DOMAIN
       http2Origin: true
   - hostname: $DASHBOARD_DOMAIN
-    service: http://localhost:$WEB_PORT
+    service: https://localhost:$GRPC_PROXY_PORT
+    originRequest:
+      originServerName: $DASHBOARD_DOMAIN
   - service: http_status:404
 EOF
 
