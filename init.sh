@@ -72,7 +72,7 @@ events {
 http {
 
 server {
-    listen 127.0.0.1$GRPC_PROXY_PORT ssl http2;
+    listen 127.0.0.1:$GRPC_PROXY_PORT ssl http2;
     listen [::1]:$GRPC_PROXY_PORT ssl http2;
     ssl_certificate          $WORK_DIR/nezha-dashboard.pem;
     ssl_certificate_key      $WORK_DIR/nezha-dashboard.key;
@@ -95,7 +95,7 @@ server {
     keepalive 1024;
   }
   server {
-    listen 127.0.0.1$GRPC_PROXY_PORT ssl http2;
+    listen 127.0.0.1:$GRPC_PROXY_PORT ssl http2;
     listen [::1]:$GRPC_PROXY_PORT ssl http2;
     server_name $AG_DOMAIN;
     ssl_certificate          $WORK_DIR/nezha-ag.pem;
