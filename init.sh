@@ -79,15 +79,15 @@ server {
     server_name $DASHBOARD_DOMAIN;
     location / {
         proxy_pass localhost:$WEB_PORT;
-        proxy_set_header Host $http_host;
-        proxy_set_header      Upgrade $http_upgrade;
+        proxy_set_header Host \$http_host;
+        proxy_set_header      Upgrade \$http_upgrade;
     }
     location ~ ^/(ws|terminal/.+)$  {
         proxy_pass localhost:$WEB_PORT;
         proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "Upgrade";
-        proxy_set_header Host $http_host;
+        proxy_set_header Host \$http_host;
     }
 }
   upstream grpcservers {
