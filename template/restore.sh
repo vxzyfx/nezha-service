@@ -156,7 +156,7 @@ if [ -e $TEMP_DIR/backup.tar.gz ]; then
   if [ "$IS_DOCKER" = 1 ]; then
     [ $(type -p sqlite3) ] || apt-get -y install sqlite3
     DB_TOKEN=$(sqlite3 ${TEMP_DIR}/${FILE_PATH}data/sqlite.db "select secret from servers where created_at='2023-04-23 13:02:00.770756566+08:00'")
-    [ -n "$DB_TOKEN" ] && LOCAL_TOKEN=$(awk '/nezha-agent -s localhost/{print $NF}' /etc/supervisor/conf.d/damon.conf)
+    [ -n "$DB_TOKEN" ] && LOCAL_TOKEN=$(awk '/nezha-agent -s localhost/{print $NF}' /dashboard/damon.conf)
     [ "$DB_TOKEN" != "$LOCAL_TOKEN" ] && sqlite3 ${TEMP_DIR}/${FILE_PATH}data/sqlite.db "update servers set secret='${LOCAL_TOKEN}' where created_at='2023-04-23 13:02:00.770756566+08:00'"
   fi
 
@@ -179,7 +179,7 @@ else
 fi
 
 if [ "$IS_DOCKER" = 1 ]; then
-  [ $(supervisorctl status all | grep -c "RUNNING") = $(grep -c '\[program:.*\]' /etc/supervisor/conf.d/damon.conf) ] && info "\n All programs started! \n" || error "\n Failed to start program! \n"
+  [ $(supervisorctl status all | grep -c "RUNNING") = $(grep -c '\[program:.*\]' /dashboard/damon.conf) ] && info "\n All programs started! \n" || error "\n Failed to start program! \n"
 else
   [ "$(systemctl is-active nezha-dashboard)" = 'active' ] && info "\n Nezha dashboard started! \n" || error "\n Failed to start Nezha dashboard! \n"
 fi
