@@ -1,5 +1,64 @@
 #!/usr/bin/env bash
 
+if [ ! -s /etc/nginx/nginx.conf ]; then
+    cat > /etc/nginx/nginx.conf  << EOF
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+events {
+        worker_connections 768;
+        # multi_accept on;
+}
+http {
+
+server {
+    listen 127.0.0.1:$GRPC_PROXY_PORT ssl;
+    listen [::1]:$GRPC_PROXY_PORT ssl;
+    http2  on;
+    ssl_certificate          $WORK_DIR/nezha-dashboard.pem;
+    ssl_certificate_key      $WORK_DIR/nezha-dashboard.key;
+    server_name $DASHBOARD_DOMAIN;
+    location / {
+        proxy_pass http://localhost:$WEB_PORT;
+        proxy_set_header Host \$http_host;
+        proxy_set_header      Upgrade \$http_upgrade;
+    }
+    location ~ ^/(ws|terminal/.+)$  {
+        proxy_pass http://localhost:$WEB_PORT;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host \$http_host;
+    }
+}
+  upstream grpcservers {
+    server localhost:$GRPC_PORT;
+    keepalive 1024;
+  }
+  server {
+    listen 127.0.0.1:$GRPC_PROXY_PORT ssl;
+    listen [::1]:$GRPC_PROXY_PORT ssl;
+    http2  on;
+    server_name $AG_DOMAIN;
+    ssl_certificate          $WORK_DIR/nezha-ag.pem;
+    ssl_certificate_key      $WORK_DIR/nezha-ag.key;
+    underscores_in_headers on;
+    keepalive_time 24h;
+    keepalive_requests 100000;
+    keepalive_timeout 120s;
+    location / {
+      grpc_read_timeout 300s;
+      grpc_send_timeout 300s;
+      grpc_socket_keepalive on;
+      grpc_pass grpc://grpcservers;
+    }
+    access_log  /dev/null;
+    error_log   /dev/null;
+  }
+}
+EOF
+fi
+
 # 首次运行时执行以下流程，再次运行时存在 /etc/supervisor/conf.d/damon.conf 文件，直接到最后一步
 if [ ! -s /dashboard/damon.conf ]; then
 
