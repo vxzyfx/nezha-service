@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # 首次运行时执行以下流程，再次运行时存在 /etc/supervisor/conf.d/damon.conf 文件，直接到最后一步
-if [ ! -s /etc/supervisor/conf.d/damon.conf ]; then
+if [ ! -s /dashboard/damon.conf ]; then
 
   # 设置 Github CDN 及若干变量，如是 IPv6 only 或者大陆机器，需要 Github 加速网，可自行查找放在 GH_PROXY 处 ，如 https://mirror.ghproxy.com/ ，能不用就不用，减少因加速网导致的故障。
   #GH_PROXY='https://ghproxy.lvedong.eu.org/'
@@ -281,7 +281,7 @@ EOF
   service crond restart
 
   # 生成 supervisor 进程守护配置文件
-  cat > /etc/supervisor/conf.d/damon.conf << EOF
+  cat > /dashboard/damon.conf << EOF
 [supervisord]
 nodaemon=true
 logfile=/dev/null
@@ -322,4 +322,4 @@ EOF
 fi
 
 # 运行 supervisor 进程守护
-supervisord -c /etc/supervisor/supervisord.conf
+supervisord -c /dashboard/damon.conf
