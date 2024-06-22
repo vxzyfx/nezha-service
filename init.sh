@@ -207,10 +207,10 @@ EOF
   fi
 
   # 生成SSL证书
-  echo -e $NEZHA_CERT_PEM > $WORK_DIR/nezha-dashboard.key
-  echo -e $NEZHA_KEY_PEM > $WORK_DIR/nezha-dashboard.pem
-  echo -e $NEZHA_AG_CERT_PEM > $WORK_DIR/nezha-ag.key
-  echo -e $NEZHA_AG_KEY_PEM > $WORK_DIR/nezha-ag.pem
+  echo -e $NEZHA_CERT_PEM > $WORK_DIR/nezha-dashboard.pem
+  echo -e $NEZHA_KEY_PEM > $WORK_DIR/nezha-dashboard.key
+  echo -e $NEZHA_AG_CERT_PEM > $WORK_DIR/nezha-ag.pem
+  echo -e $NEZHA_AG_KEY_PEM > $WORK_DIR/nezha-ag.key
 
   # 生成 backup.sh 文件的步骤1 - 设置环境变量
   cat > $WORK_DIR/backup.sh << EOF
