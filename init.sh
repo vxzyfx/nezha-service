@@ -8,7 +8,8 @@ WORK_DIR=/dashboard
 # 默认agent的证书和dashboard的一样
 NEZHA_AG_CERT_PEM=${NEZHA_AG_CERT_PEM:-$NEZHA_CERT_PEM}
 NEZHA_AG_KEY_PEM=${NEZHA_AG_KEY_PEM:-$NEZHA_KEY_PEM}
-  
+ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+dpkg-reconfigure -f noninteractive tzdata
 if [ ! -s $WORK_DIR/nginx.conf ]; then
     cat > $WORK_DIR/nginx.conf  << EOF
 worker_processes auto;
